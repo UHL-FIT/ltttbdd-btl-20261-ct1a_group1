@@ -1,47 +1,83 @@
 package com.example.projectflashcard.giaodien.chucnang.chitietbothe
-
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projectflashcard.giaodien.chude.ChuDeLearnFlash
+import com.example.projectflashcard.giaodien.thanhphan.HopThoaiXacNhan
 import com.example.projectflashcard.giaodien.thanhphan.ThanhTieuDe
-import com.example.projectflashcard.giaodien.thanhphan.TheTuVung
+import com.example.projectflashcard.giaodien.thanhphan.TrangThaiRong
+import com.example.projectflashcard.nghiepvu.kieudulieu.TrangThaiTuVung
 
 @Composable
 fun ChiTietBoTheScreen(
     boTheId: Int,
     onQuayLai: () -> Unit,
     onThemTuVung: (Int) -> Unit,
-    onOnTapBoThe: (Int) -> Unit
+    onOnTapBoThe: (Int) -> Unit,
+    viewModel: ChiTietBoTheViewModel = viewModel()
 ) {
-    val tenBoThe = when (boTheId) {
-        2 -> "Giao tiếp hằng ngày"
-        3 -> "Công nghệ thông tin"
-        else -> "English A1"
-    }
-    val tuVungMau = listOf(
-        listOf("Apple", "quả táo", "/ˈæp.əl/", "I eat an apple every morning."),
-        listOf("Improve", "cải thiện", "/ɪmˈpruːv/", "Practice helps you improve."),
-        listOf("Memory", "trí nhớ", "/ˈmem.ər.i/", "Flashcards support long-term memory.")
-    )
+    val uiState by viewModel.uiState.collectAsState()
 
+    LaunchedEffect(boTheId) {
+        viewModel.taiBoThe(boTheId)
+    }
+
+    ChiTietBoTheNoiDung(
+        uiState = uiState,
+        onQuayLai = onQuayLai,
+        onEvent = viewModel::xuLySuKien,
+        onThemTuVung = {
+            viewModel.xuLySuKien(ChiTietBoTheEvent.BamThemTuVung)
+            onThemTuVung(boTheId)
+        },
+        onOnTapBoThe = {
+            viewModel.xuLySuKien(ChiTietBoTheEvent.BamOnTap)
+            onOnTapBoThe(boTheId)
+        },
+        onSuaTuVung = { tuVung ->
+            viewModel.xuLySuKien(ChiTietBoTheEvent.BamSuaTuVung(tuVung))
+            onThemTuVung(boTheId)
+        }
+    )
+}
+
+@Composable
+private fun ChiTietBoTheNoiDung(
+    uiState: ChiTietBoTheUiState,
+    onQuayLai: () -> Unit,
+    onEvent: (ChiTietBoTheEvent) -> Unit,
+    onThemTuVung: () -> Unit,
+    onOnTapBoThe: () -> Unit,
+    onSuaTuVung: (MucTuVung) -> Unit
+) {
     Scaffold(
         topBar = {
             ThanhTieuDe(
-                tieuDe = tenBoThe,
+                tieuDe = uiState.tenBoThe.ifBlank { "Chi tiết bộ thẻ" },
                 coNutQuayLai = true,
                 onQuayLai = onQuayLai
             )
@@ -60,36 +96,174 @@ fun ChiTietBoTheScreen(
                     style = MaterialTheme.typography.titleLarge
                 )
             }
+
+            item {
+                OutlinedTextField(
+                    value = uiState.tuKhoaTimKiem,
+                    onValueChange = {
+                        onEvent(ChiTietBoTheEvent.ThayDoiTuKhoaTimKiem(it))
+                    },
+                    label = { Text(text = "Tìm từ vựng trong bộ thẻ") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(BoLocTuVung.entries.toList()) { boLoc ->
+                        val dangChon = uiState.boLocDangChon == boLoc
+                        if (dangChon) {
+                            Button(
+                                onClick = {
+                                    onEvent(ChiTietBoTheEvent.ChonBoLoc(boLoc))
+                                }
+                            ) {
+                                Text(text = boLoc.tieuDe)
+                            }
+                        } else {
+                            OutlinedButton(
+                                onClick = {
+                                    onEvent(ChiTietBoTheEvent.ChonBoLoc(boLoc))
+                                }
+                            ) {
+                                Text(text = boLoc.tieuDe)
+                            }
+                        }
+                    }
+                }
+            }
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
-                        onClick = { onThemTuVung(boTheId) },
+                        onClick = onThemTuVung,
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(text = "Thêm từ vựng")
                     }
                     OutlinedButton(
-                        onClick = { onOnTapBoThe(boTheId) },
+                        onClick = onOnTapBoThe,
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(text = "Ôn tập")
                     }
                 }
             }
-            items(tuVungMau.size) { index ->
-                val tu = tuVungMau[index]
-                TheTuVung(
-                    tuTiengAnh = tu[0],
-                    nghiaTiengViet = tu[1],
-                    phienAm = tu[2],
-                    viDu = tu[3],
-                    onClick = { onThemTuVung(boTheId) }
-                )
+
+            if (uiState.danhSachHienThi.isEmpty()) {
+                item {
+                    TrangThaiRong(
+                        tieuDe = "Chưa có từ vựng",
+                        moTa = "Không tìm thấy từ vựng phù hợp trong bộ thẻ này."
+                    )
+                }
+            } else {
+                items(
+                    items = uiState.danhSachHienThi,
+                    key = { it.id }
+                ) { tuVung ->
+                    MucTuVungTrongBoThe(
+                        tuVung = tuVung,
+                        onSua = { onSuaTuVung(tuVung) },
+                        onXoa = {
+                            onEvent(ChiTietBoTheEvent.BamXoaTuVung(tuVung))
+                        }
+                    )
+                }
             }
         }
+    }
+
+    uiState.tuVungDangXoa?.let {
+        HopThoaiXacNhan(
+            tieuDe = "Xóa từ vựng?",
+            noiDung = "Bạn có chắc muốn xóa từ này khỏi bộ thẻ không?",
+            chuXacNhan = "Xóa",
+            chuHuy = "Hủy",
+            onXacNhan = {
+                onEvent(ChiTietBoTheEvent.XacNhanXoaTuVung)
+            },
+            onHuy = {
+                onEvent(ChiTietBoTheEvent.HuyXoaTuVung)
+            }
+        )
+    }
+}
+
+@Composable
+private fun MucTuVungTrongBoThe(
+    tuVung: MucTuVung,
+    onSua: () -> Unit,
+    onXoa: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = tuVung.tu,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "${tuVung.phienAm} - ${tuVung.nghia}",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = tuVung.viDu,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = taoNhanTrangThai(tuVung),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onSua,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Sửa")
+                }
+                OutlinedButton(
+                    onClick = onXoa,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Xóa")
+                }
+            }
+        }
+    }
+}
+
+private fun taoNhanTrangThai(tuVung: MucTuVung): String {
+    val trangThai = when (tuVung.trangThai) {
+        TrangThaiTuVung.MOI_HOC -> "Mới học"
+        TrangThaiTuVung.DANG_HOC -> "Đang học"
+        TrangThaiTuVung.DA_THUOC -> "Đã thuộc"
+    }
+
+    return if (tuVung.canOnHomNay) {
+        "$trangThai - Cần ôn hôm nay"
+    } else {
+        trangThai
     }
 }
 
@@ -97,11 +271,18 @@ fun ChiTietBoTheScreen(
 @Composable
 private fun ChiTietBoTheScreenPreview() {
     ChuDeLearnFlash {
-        ChiTietBoTheScreen(
-            boTheId = 1,
+        ChiTietBoTheNoiDung(
+            uiState = ChiTietBoTheUiState(
+                boTheId = 1,
+                tenBoThe = "English A1",
+                danhSachTuVung = emptyList(),
+                danhSachHienThi = emptyList()
+            ),
             onQuayLai = {},
+            onEvent = {},
             onThemTuVung = {},
-            onOnTapBoThe = {}
+            onOnTapBoThe = {},
+            onSuaTuVung = {}
         )
     }
 }

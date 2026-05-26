@@ -11,6 +11,7 @@ import com.example.projectflashcard.giaodien.chucnang.caidat.CaiDatScreen
 import com.example.projectflashcard.giaodien.chucnang.chitietbothe.ChiTietBoTheScreen
 import com.example.projectflashcard.giaodien.chucnang.gioithieu.GioiThieuScreen
 import com.example.projectflashcard.giaodien.chucnang.ontapflashcard.OnTapFlashcardScreen
+import com.example.projectflashcard.giaodien.chucnang.quanlybothe.QuanLyBoTheEvent
 import com.example.projectflashcard.giaodien.chucnang.quanlybothe.QuanLyBoTheScreen
 import com.example.projectflashcard.giaodien.chucnang.themsuatuvung.ThemSuaTuVungScreen
 import com.example.projectflashcard.giaodien.chucnang.thongkehoctap.ThongKeHocTapScreen
@@ -43,9 +44,14 @@ fun SoDoDieuHuong(
 
         composable(ManHinh.QuanLyBoThe.route) {
             QuanLyBoTheScreen(
-                onQuayLai = { navController.quayLaiHoacVeTrangChu() },
-                onMoChiTiet = { boTheId ->
-                    navController.navigate(ManHinh.ChiTietBoThe.taoDuongDan(boTheId))
+                onEvent = { event ->
+                    when (event) {
+                        QuanLyBoTheEvent.QuayLai ->
+                            navController.quayLaiHoacVeTrangChu()
+                        is QuanLyBoTheEvent.MoChiTiet ->
+                            navController.navigate(ManHinh.ChiTietBoThe.taoDuongDan(event.boTheId.toInt()))
+                        else -> Unit
+                    }
                 }
             )
         }

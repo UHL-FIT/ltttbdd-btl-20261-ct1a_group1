@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class QuanLyBoTheViewModel(application: Application) : AndroidViewModel(application) {
 
     private val kho: KhoFlashcard
@@ -28,7 +29,7 @@ class QuanLyBoTheViewModel(application: Application) : AndroidViewModel(applicat
 
     init {
         val db = CoSoDuLieuLearnFlash.layInstance(application)
-        kho = KhoDuLieuFlashcard(db.truyVanBoThe())
+        kho = KhoDuLieuFlashcard(db.truyVanBoThe(), db.truyVanTuVung())
 
         viewModelScope.launch {
             _tuKhoa

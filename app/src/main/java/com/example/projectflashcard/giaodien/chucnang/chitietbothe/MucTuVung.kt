@@ -4,7 +4,7 @@ import com.example.projectflashcard.nghiepvu.kieudulieu.TrangThaiTuVung
 
 data class MucTuVung(
     val id: Long,
-    val boTheId: Int,
+    val boTheId: Long,
     val tu: String,
     val nghia: String,
     val phienAm: String,

@@ -15,23 +15,61 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projectflashcard.giaodien.chude.ChuDeLearnFlash
 import com.example.projectflashcard.giaodien.thanhphan.ThanhTieuDe
 
 @Composable
 fun ThemSuaTuVungScreen(
     boTheId: Int,
-    onQuayLai: () -> Unit
+    onQuayLai: () -> Unit,
+    viewModel: ThemSuaTuVungViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(boTheId) {
+        viewModel.taiBoThe(boTheId)
+    }
+
+    LaunchedEffect(uiState.daLuu) {
+        if (uiState.daLuu) {
+            onQuayLai()
+        }
+    }
+
     BackHandler(onBack = onQuayLai)
 
+    ThemSuaTuVungNoiDung(
+        uiState = uiState,
+        onQuayLai = onQuayLai,
+        onDoiTu = viewModel::doiTu,
+        onDoiNghia = viewModel::doiNghia,
+        onDoiPhienAm = viewModel::doiPhienAm,
+        onDoiViDu = viewModel::doiViDu,
+        onLuu = viewModel::luu
+    )
+}
+
+@Composable
+private fun ThemSuaTuVungNoiDung(
+    uiState: ThemSuaTuVungUiState,
+    onQuayLai: () -> Unit,
+    onDoiTu: (String) -> Unit,
+    onDoiNghia: (String) -> Unit,
+    onDoiPhienAm: (String) -> Unit,
+    onDoiViDu: (String) -> Unit,
+    onLuu: () -> Unit
+) {
     Scaffold(
         topBar = {
             ThanhTieuDe(
-                tieuDe = "Thêm / sửa từ vựng",
+                tieuDe = "Them tu vung",
                 coNutQuayLai = true,
                 onQuayLai = onQuayLai
             )
@@ -46,7 +84,7 @@ fun ThemSuaTuVungScreen(
         ) {
             item {
                 Text(
-                    text = "Bộ thẻ #$boTheId",
+                    text = "Bo the #${uiState.boTheId}",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -54,46 +92,60 @@ fun ThemSuaTuVungScreen(
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
-                        value = "Practice",
-                        onValueChange = {},
-                        label = { Text("Từ tiếng Anh") },
+                        value = uiState.tu,
+                        onValueChange = onDoiTu,
+                        label = { Text("Tu tieng Anh") },
+                        singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
-                        value = "luyện tập",
-                        onValueChange = {},
-                        label = { Text("Nghĩa tiếng Việt") },
+                        value = uiState.nghia,
+                        onValueChange = onDoiNghia,
+                        label = { Text("Nghia tieng Viet") },
+                        singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
-                        value = "/ˈpræk.tɪs/",
-                        onValueChange = {},
-                        label = { Text("Phiên âm") },
+                        value = uiState.phienAm,
+                        onValueChange = onDoiPhienAm,
+                        label = { Text("Phien am") },
+                        singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
-                        value = "You should practice every day.",
-                        onValueChange = {},
-                        label = { Text("Ví dụ") },
+                        value = uiState.viDu,
+                        onValueChange = onDoiViDu,
+                        label = { Text("Vi du") },
                         minLines = 3,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
+            uiState.thongBaoLoi?.let { thongBao ->
+                item {
+                    Text(
+                        text = thongBao,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
             item {
                 Button(
-                    onClick = onQuayLai,
+                    onClick = onLuu,
+                    enabled = !uiState.dangLuu,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Lưu từ vựng")
+                    Text(text = if (uiState.dangLuu) "Dang luu..." else "Luu tu vung")
                 }
             }
             item {
                 OutlinedButton(
                     onClick = onQuayLai,
+                    enabled = !uiState.dangLuu,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Hủy")
+                    Text(text = "Huy")
                 }
             }
         }
@@ -104,9 +156,14 @@ fun ThemSuaTuVungScreen(
 @Composable
 private fun ThemSuaTuVungScreenPreview() {
     ChuDeLearnFlash {
-        ThemSuaTuVungScreen(
-            boTheId = 1,
-            onQuayLai = {}
+        ThemSuaTuVungNoiDung(
+            uiState = ThemSuaTuVungUiState(boTheId = 1),
+            onQuayLai = {},
+            onDoiTu = {},
+            onDoiNghia = {},
+            onDoiPhienAm = {},
+            onDoiViDu = {},
+            onLuu = {}
         )
     }
 }

@@ -15,6 +15,9 @@ interface TruyVanBoThe {
     @Query("SELECT * FROM bo_the ORDER BY ngayTao DESC")
     fun layTatCa(): Flow<List<BangBoThe>>
 
+    @Query("SELECT * FROM bo_the WHERE id = :id LIMIT 1")
+    fun layTheoId(id: Long): Flow<BangBoThe?>
+
     @Query("SELECT * FROM bo_the WHERE tenBoThe LIKE '%' || :tuKhoa || '%' ORDER BY ngayTao DESC")
     fun timTheoTen(tuKhoa: String): Flow<List<BangBoThe>>
 

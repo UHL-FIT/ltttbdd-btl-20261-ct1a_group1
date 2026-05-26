@@ -1,24 +1,38 @@
 package com.example.projectflashcard.giaodien.chucnang.chitietbothe
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.projectflashcard.dulieu.cucbo.cosodulieu.CoSoDuLieuLearnFlash
+import com.example.projectflashcard.dulieu.khodulieu.KhoDuLieuFlashcard
 import com.example.projectflashcard.nghiepvu.kieudulieu.TrangThaiTuVung
+import com.example.projectflashcard.nghiepvu.kieudulieu.TuVung
+import com.example.projectflashcard.nghiepvu.khodulieu.KhoFlashcard
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class ChiTietBoTheViewModel : ViewModel() {
-    private val danhSachGoc = MutableStateFlow(taoDanhSachTuVungMau())
+class ChiTietBoTheViewModel(application: Application) : AndroidViewModel(application) {
+    private val kho: KhoFlashcard
+    private var congViecTaiBoThe: Job? = null
 
     private val _uiState = MutableStateFlow(
         ChiTietBoTheUiState(
             boTheId = 1,
-            tenBoThe = "English A1",
-            danhSachTuVung = danhSachGoc.value,
-            danhSachHienThi = danhSachGoc.value
+            tenBoThe = "",
+            dangTai = true
         )
     )
     val uiState: StateFlow<ChiTietBoTheUiState> = _uiState.asStateFlow()
+
+    init {
+        val db = CoSoDuLieuLearnFlash.layInstance(application)
+        kho = KhoDuLieuFlashcard(db.truyVanBoThe(), db.truyVanTuVung())
+    }
 
     fun xuLySuKien(event: ChiTietBoTheEvent) {
         when (event) {
@@ -34,19 +48,29 @@ class ChiTietBoTheViewModel : ViewModel() {
     }
 
     fun taiBoThe(boTheId: Int) {
-        val tenBoThe = when (boTheId) {
-            2 -> "Giao tiếp hằng ngày"
-            3 -> "Từ vựng công nghệ"
-            else -> "English A1"
-        }
+        congViecTaiBoThe?.cancel()
+        _uiState.update { it.copy(boTheId = boTheId, dangTai = true) }
 
-        _uiState.update { state ->
-            state.copy(
-                boTheId = boTheId,
-                tenBoThe = tenBoThe
-            )
+        val id = boTheId.toLong()
+        congViecTaiBoThe = viewModelScope.launch {
+            combine(
+                kho.layBoTheTheoId(id),
+                kho.layTuVungTheoBoThe(id)
+            ) { boThe, danhSachTuVung ->
+                boThe to danhSachTuVung
+            }.collect { (boThe, danhSachTuVung) ->
+                _uiState.update { state ->
+                    val danhSach = danhSachTuVung.map { it.thanhMucTuVung() }
+                    val stateMoi = state.copy(
+                        boTheId = boTheId,
+                        tenBoThe = boThe?.tenBoThe ?: "Bo the #$boTheId",
+                        danhSachTuVung = danhSach,
+                        dangTai = false
+                    )
+                    stateMoi.copy(danhSachHienThi = locDanhSach(stateMoi))
+                }
+            }
         }
-        capNhatDanhSachHienThi()
     }
 
     private fun thayDoiTuKhoaTimKiem(tuKhoa: String) {
@@ -69,24 +93,23 @@ class ChiTietBoTheViewModel : ViewModel() {
 
     private fun xacNhanXoaTuVung() {
         val tuCanXoa = _uiState.value.tuVungDangXoa ?: return
-        danhSachGoc.update { danhSach ->
-            danhSach.filterNot { it.id == tuCanXoa.id }
+        viewModelScope.launch {
+            kho.xoaTuVungTheoId(tuCanXoa.id)
+            _uiState.update { it.copy(tuVungDangXoa = null) }
         }
-        _uiState.update {
-            it.copy(
-                danhSachTuVung = danhSachGoc.value,
-                tuVungDangXoa = null
-            )
-        }
-        capNhatDanhSachHienThi()
     }
 
     private fun capNhatDanhSachHienThi() {
-        val state = _uiState.value
+        _uiState.update { state ->
+            state.copy(danhSachHienThi = locDanhSach(state))
+        }
+    }
+
+    private fun locDanhSach(state: ChiTietBoTheUiState): List<MucTuVung> {
         val tuKhoa = state.tuKhoaTimKiem.trim()
 
-        val danhSachDaLoc = danhSachGoc.value
-            .filter { it.boTheId == state.boTheId }
+        return state.danhSachTuVung
+            .filter { it.boTheId == state.boTheId.toLong() }
             .filter { tuVung ->
                 tuKhoa.isBlank() ||
                     tuVung.tu.contains(tuKhoa, ignoreCase = true) ||
@@ -100,58 +123,16 @@ class ChiTietBoTheViewModel : ViewModel() {
                     BoLocTuVung.CAN_ON -> tuVung.canOnHomNay
                 }
             }
-
-        _uiState.update {
-            it.copy(
-                danhSachTuVung = danhSachGoc.value,
-                danhSachHienThi = danhSachDaLoc
-            )
-        }
     }
 
-    private fun taoDanhSachTuVungMau(): List<MucTuVung> {
-        // Dữ liệu mẫu tạm thời, sẽ thay bằng Repository/Room ở các bước sau.
-        return listOf(
-            MucTuVung(
-                id = 1,
-                boTheId = 1,
-                tu = "Apple",
-                nghia = "quả táo",
-                phienAm = "/ˈæp.əl/",
-                viDu = "I eat an apple every morning.",
-                trangThai = TrangThaiTuVung.MOI_HOC,
-                canOnHomNay = true
-            ),
-            MucTuVung(
-                id = 2,
-                boTheId = 1,
-                tu = "Improve",
-                nghia = "cải thiện",
-                phienAm = "/ɪmˈpruːv/",
-                viDu = "Practice helps you improve.",
-                trangThai = TrangThaiTuVung.DANG_HOC,
-                canOnHomNay = true
-            ),
-            MucTuVung(
-                id = 3,
-                boTheId = 1,
-                tu = "Memory",
-                nghia = "trí nhớ",
-                phienAm = "/ˈmem.ər.i/",
-                viDu = "Flashcards support long-term memory.",
-                trangThai = TrangThaiTuVung.DA_THUOC,
-                canOnHomNay = false
-            ),
-            MucTuVung(
-                id = 4,
-                boTheId = 1,
-                tu = "Review",
-                nghia = "ôn tập",
-                phienAm = "/rɪˈvjuː/",
-                viDu = "Review your cards every day.",
-                trangThai = TrangThaiTuVung.DANG_HOC,
-                canOnHomNay = true
-            )
-        )
-    }
+    private fun TuVung.thanhMucTuVung(): MucTuVung = MucTuVung(
+        id = id,
+        boTheId = boTheId,
+        tu = tu,
+        nghia = nghia,
+        phienAm = phienAm,
+        viDu = viDu,
+        trangThai = trangThai,
+        canOnHomNay = canOnHomNay
+    )
 }

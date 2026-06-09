@@ -41,6 +41,9 @@ class KhoDuLieuFlashcard(
     override fun layTuVungTheoId(id: Long): Flow<TuVung?> =
         truyVanTuVung.layTheoId(id).map { it?.thanhTuVung() }
 
+    override fun timTuVung(tuKhoa: String): Flow<List<TuVung>> =
+        truyVanTuVung.timTuVung(tuKhoa).map { ds -> ds.map { it.thanhTuVung() } }
+
     override suspend fun themTuVung(tuVung: TuVung): Long =
         truyVanTuVung.them(tuVung.thanhBangTuVung())
 

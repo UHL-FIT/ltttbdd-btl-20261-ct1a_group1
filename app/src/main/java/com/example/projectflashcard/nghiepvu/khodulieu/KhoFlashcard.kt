@@ -22,6 +22,8 @@ interface KhoFlashcard {
 
     fun layTuVungTheoId(id: Long): Flow<TuVung?>
 
+    fun timTuVung(tuKhoa: String): Flow<List<TuVung>>
+
     suspend fun themTuVung(tuVung: TuVung): Long
 
     suspend fun suaTuVung(tuVung: TuVung)

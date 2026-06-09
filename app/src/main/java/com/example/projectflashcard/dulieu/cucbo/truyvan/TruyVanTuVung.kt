@@ -17,6 +17,17 @@ interface TruyVanTuVung {
     @Query("SELECT * FROM tu_vung WHERE id = :id LIMIT 1")
     fun layTheoId(id: Long): Flow<BangTuVung?>
 
+    @Query(
+        """
+        SELECT * FROM tu_vung
+        WHERE tu LIKE '%' || :tuKhoa || '%'
+            OR nghia LIKE '%' || :tuKhoa || '%'
+            OR phienAm LIKE '%' || :tuKhoa || '%'
+        ORDER BY ngayTao DESC
+        """
+    )
+    fun timTuVung(tuKhoa: String): Flow<List<BangTuVung>>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun them(tuVung: BangTuVung): Long
 

@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TruyVanTuVung {
 
+    @Query("SELECT * FROM tu_vung ORDER BY ngayTao DESC")
+    fun layTatCa(): Flow<List<BangTuVung>>
+
     @Query("SELECT * FROM tu_vung WHERE boTheId = :boTheId ORDER BY ngayTao DESC")
     fun layTheoBoThe(boTheId: Long): Flow<List<BangTuVung>>
 

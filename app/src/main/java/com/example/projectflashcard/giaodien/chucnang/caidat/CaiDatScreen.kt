@@ -9,15 +9,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -93,6 +97,20 @@ private fun CaiDatNoiDung(
                 )
             }
 
+            item {
+                TheNhapXuatJson(
+                    noiDungJsonNhap = uiState.noiDungJsonNhap,
+                    jsonDaXuat = uiState.jsonDaXuat,
+                    dangKhoa = uiState.dangTai || uiState.dangLuu,
+                    onCapNhatJsonNhap = { noiDung ->
+                        onEvent(CaiDatEvent.CapNhatNoiDungJsonNhap(noiDung))
+                    },
+                    onXuatJson = { onEvent(CaiDatEvent.XuatJson) },
+                    onNhapJson = { onEvent(CaiDatEvent.NhapJson) },
+                    onXoaJsonDaXuat = { onEvent(CaiDatEvent.XoaJsonDaXuat) }
+                )
+            }
+
             if (uiState.dangTai || uiState.dangLuu) {
                 item { TrangThaiDangLuu(dangTai = uiState.dangTai) }
             }
@@ -128,7 +146,7 @@ private fun TheMucTieuOnTap(
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(8.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -179,7 +197,7 @@ private fun TheCheDoGiaoDien(
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(8.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -248,6 +266,90 @@ private fun LuaChonCheDoGiaoDien(
 }
 
 @Composable
+private fun TheNhapXuatJson(
+    noiDungJsonNhap: String,
+    jsonDaXuat: String,
+    dangKhoa: Boolean,
+    onCapNhatJsonNhap: (String) -> Unit,
+    onXuatJson: () -> Unit,
+    onNhapJson: () -> Unit,
+    onXoaJsonDaXuat: () -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "Sao lưu dữ liệu",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = "Xuất bộ thẻ và từ vựng để copy, hoặc dán nội dung đã sao lưu để nhập thêm.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = onXuatJson,
+                    enabled = !dangKhoa
+                ) {
+                    Text("Xuất")
+                }
+                OutlinedButton(
+                    onClick = onNhapJson,
+                    enabled = !dangKhoa && noiDungJsonNhap.isNotBlank()
+                ) {
+                    Text("Nhập")
+                }
+            }
+
+            OutlinedTextField(
+                value = noiDungJsonNhap,
+                onValueChange = onCapNhatJsonNhap,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 120.dp),
+                label = { Text("Dán nội dung cần nhập") },
+                enabled = !dangKhoa,
+                minLines = 4,
+                maxLines = 8
+            )
+
+            if (jsonDaXuat.isNotBlank()) {
+                HorizontalDivider()
+                Text(
+                    text = "Nội dung đã xuất",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                OutlinedTextField(
+                    value = jsonDaXuat,
+                    onValueChange = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 160.dp),
+                    readOnly = true,
+                    minLines = 5,
+                    maxLines = 10
+                )
+                OutlinedButton(
+                    onClick = onXoaJsonDaXuat,
+                    enabled = !dangKhoa
+                ) {
+                    Text("Ẩn nội dung")
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun TrangThaiDangLuu(dangTai: Boolean) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -257,7 +359,7 @@ private fun TrangThaiDangLuu(dangTai: Boolean) {
         CircularProgressIndicator(modifier = Modifier.width(20.dp).height(20.dp))
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = if (dangTai) "Đang tải cài đặt..." else "Đang lưu thay đổi...",
+            text = if (dangTai) "Đang tải cài đặt..." else "Đang xử lý...",
             style = MaterialTheme.typography.bodyMedium
         )
     }

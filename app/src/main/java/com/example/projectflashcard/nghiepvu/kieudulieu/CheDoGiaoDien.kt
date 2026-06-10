@@ -6,14 +6,14 @@ enum class CheDoGiaoDien(
 ) {
     HE_THONG(
         tenHienThi = "Theo hệ thống",
-        moTa = "Ứng dụng tự đổi sáng/tối theo thiết bị"
+        moTa = "Tự đổi sáng/tối theo thiết bị"
     ),
     SANG(
         tenHienThi = "Sáng",
-        moTa = "Giao diện nền sáng, dễ dùng khi học ban ngày"
+        moTa = "Giao diện nền sáng"
     ),
     TOI(
         tenHienThi = "Tối",
-        moTa = "Giao diện nền tối, dịu mắt khi học buổi tối"
+        moTa = "Giao diện nền tối"
     )
 }

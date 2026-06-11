@@ -2,6 +2,7 @@ package com.example.projectflashcard.nghiepvu.khodulieu
 
 import com.example.projectflashcard.nghiepvu.kieudulieu.BoThe
 import com.example.projectflashcard.nghiepvu.kieudulieu.DuLieuNhapXuat
+import com.example.projectflashcard.nghiepvu.kieudulieu.LichSuOnTap
 import com.example.projectflashcard.nghiepvu.kieudulieu.TuVung
 import kotlinx.coroutines.flow.Flow
 
@@ -32,6 +33,14 @@ interface KhoFlashcard {
     suspend fun suaTuVung(tuVung: TuVung)
 
     suspend fun xoaTuVungTheoId(id: Long)
+
+    fun layTatCaLichSuOnTap(): Flow<List<LichSuOnTap>>
+
+    fun layLichSuOnTapTheoTuVung(tuVungId: Long): Flow<List<LichSuOnTap>>
+
+    fun layLichSuOnTapTheoBoThe(boTheId: Long): Flow<List<LichSuOnTap>>
+
+    suspend fun themLichSuOnTap(lichSuOnTap: LichSuOnTap): Long
 
     suspend fun nhapDuLieuNhapXuat(duLieuNhapXuat: DuLieuNhapXuat)
 }

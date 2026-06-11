@@ -3,23 +3,29 @@ package com.example.projectflashcard.dulieu.khodulieu
 import androidx.room.withTransaction
 import com.example.projectflashcard.dulieu.cucbo.bang.BangBoThe
 import com.example.projectflashcard.dulieu.cucbo.bang.BangTuVung
+import com.example.projectflashcard.dulieu.cucbo.chuyendoi.thanhBangLichSuOnTap
 import com.example.projectflashcard.dulieu.cucbo.chuyendoi.thanhBangBoThe
 import com.example.projectflashcard.dulieu.cucbo.chuyendoi.thanhBangTuVung
 import com.example.projectflashcard.dulieu.cucbo.chuyendoi.thanhBoThe
+import com.example.projectflashcard.dulieu.cucbo.chuyendoi.thanhLichSuOnTap
 import com.example.projectflashcard.dulieu.cucbo.chuyendoi.thanhTuVung
 import com.example.projectflashcard.dulieu.cucbo.cosodulieu.CoSoDuLieuLearnFlash
 import com.example.projectflashcard.dulieu.cucbo.truyvan.TruyVanBoThe
+import com.example.projectflashcard.dulieu.cucbo.truyvan.TruyVanLichSuOnTap
 import com.example.projectflashcard.dulieu.cucbo.truyvan.TruyVanTuVung
 import com.example.projectflashcard.nghiepvu.kieudulieu.BoThe
 import com.example.projectflashcard.nghiepvu.kieudulieu.DuLieuNhapXuat
+import com.example.projectflashcard.nghiepvu.kieudulieu.LichSuOnTap
 import com.example.projectflashcard.nghiepvu.kieudulieu.TuVung
 import com.example.projectflashcard.nghiepvu.khodulieu.KhoFlashcard
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 class KhoDuLieuFlashcard(
     private val truyVanBoThe: TruyVanBoThe,
     private val truyVanTuVung: TruyVanTuVung,
+    private val truyVanLichSuOnTap: TruyVanLichSuOnTap? = null,
     private val coSoDuLieu: CoSoDuLieuLearnFlash? = null
 ) : KhoFlashcard {
 
@@ -61,6 +67,29 @@ class KhoDuLieuFlashcard(
 
     override suspend fun xoaTuVungTheoId(id: Long) =
         truyVanTuVung.xoaTheoId(id)
+
+    override fun layTatCaLichSuOnTap(): Flow<List<LichSuOnTap>> =
+        truyVanLichSuOnTap
+            ?.layTatCa()
+            ?.map { ds -> ds.map { it.thanhLichSuOnTap() } }
+            ?: flowOf(emptyList())
+
+    override fun layLichSuOnTapTheoTuVung(tuVungId: Long): Flow<List<LichSuOnTap>> =
+        truyVanLichSuOnTap
+            ?.layTheoTuVung(tuVungId)
+            ?.map { ds -> ds.map { it.thanhLichSuOnTap() } }
+            ?: flowOf(emptyList())
+
+    override fun layLichSuOnTapTheoBoThe(boTheId: Long): Flow<List<LichSuOnTap>> =
+        truyVanLichSuOnTap
+            ?.layTheoBoThe(boTheId)
+            ?.map { ds -> ds.map { it.thanhLichSuOnTap() } }
+            ?: flowOf(emptyList())
+
+    override suspend fun themLichSuOnTap(lichSuOnTap: LichSuOnTap): Long =
+        requireNotNull(truyVanLichSuOnTap) {
+            "TruyVanLichSuOnTap chua duoc khoi tao"
+        }.them(lichSuOnTap.thanhBangLichSuOnTap())
 
     override suspend fun nhapDuLieuNhapXuat(duLieuNhapXuat: DuLieuNhapXuat) {
         val thaoTacNhap: suspend () -> Unit = {

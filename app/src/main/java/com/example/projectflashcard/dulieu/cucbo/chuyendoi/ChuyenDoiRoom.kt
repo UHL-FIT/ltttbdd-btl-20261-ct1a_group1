@@ -1,8 +1,11 @@
 package com.example.projectflashcard.dulieu.cucbo.chuyendoi
 
 import com.example.projectflashcard.dulieu.cucbo.bang.BangBoThe
+import com.example.projectflashcard.dulieu.cucbo.bang.BangLichSuOnTap
 import com.example.projectflashcard.dulieu.cucbo.bang.BangTuVung
 import com.example.projectflashcard.nghiepvu.kieudulieu.BoThe
+import com.example.projectflashcard.nghiepvu.kieudulieu.LichSuOnTap
+import com.example.projectflashcard.nghiepvu.kieudulieu.MucDoOnTap
 import com.example.projectflashcard.nghiepvu.kieudulieu.TrangThaiTuVung
 import com.example.projectflashcard.nghiepvu.kieudulieu.TuVung
 
@@ -43,4 +46,21 @@ fun TuVung.thanhBangTuVung(): BangTuVung = BangTuVung(
     trangThai = trangThai.name,
     canOnHomNay = canOnHomNay,
     ngayTao = ngayTao
+)
+
+fun BangLichSuOnTap.thanhLichSuOnTap(): LichSuOnTap = LichSuOnTap(
+    id = id,
+    tuVungId = tuVungId,
+    boTheId = boTheId,
+    mucDoOnTap = runCatching { MucDoOnTap.valueOf(mucDoOnTap) }
+        .getOrDefault(MucDoOnTap.KHO_NHO),
+    ngayOn = ngayOn
+)
+
+fun LichSuOnTap.thanhBangLichSuOnTap(): BangLichSuOnTap = BangLichSuOnTap(
+    id = id,
+    tuVungId = tuVungId,
+    boTheId = boTheId,
+    mucDoOnTap = mucDoOnTap.name,
+    ngayOn = ngayOn
 )

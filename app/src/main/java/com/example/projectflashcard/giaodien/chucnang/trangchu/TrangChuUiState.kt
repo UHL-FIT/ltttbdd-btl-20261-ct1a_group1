@@ -1,9 +1,9 @@
 package com.example.projectflashcard.giaodien.chucnang.trangchu
 
 data class TrangChuUiState(
-    val tongSoBoThe: Int = 3,
-    val tongSoTuVung: Int = 28,
-    val soTuDaThuoc: Int = 12,
-    val soTuCanOnHomNay: Int = 6
+    val tongSoBoThe: Int = 0,
+    val tongSoTuVung: Int = 0,
+    val soTuDaThuoc: Int = 0,
+    val soTuCanOnHomNay: Int = 0
 )
 

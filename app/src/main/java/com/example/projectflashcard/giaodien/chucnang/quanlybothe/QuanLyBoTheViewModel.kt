@@ -23,10 +23,17 @@ class QuanLyBoTheViewModel(application: Application) : AndroidViewModel(applicat
     val uiState: StateFlow<QuanLyBoTheUiState> = _uiState.asStateFlow()
 
     private val _tuKhoa = MutableStateFlow("")
+    private var danhSachTatCaBoThe: List<BoThe> = emptyList()
 
     init {
         val db = CoSoDuLieuLearnFlash.layInstance(application)
         kho = KhoDuLieuFlashcard(db.truyVanBoThe(), db.truyVanTuVung())
+
+        viewModelScope.launch {
+            kho.layTatCaBoThe().collect { danhSach ->
+                danhSachTatCaBoThe = danhSach
+            }
+        }
 
         viewModelScope.launch {
             _tuKhoa
@@ -74,7 +81,7 @@ class QuanLyBoTheViewModel(application: Application) : AndroidViewModel(applicat
 
         val loiKiemTra = KiemTraBoThe.kiemTraTenBoThe(
             tenBoThe = tenTrimmed,
-            danhSachBoThe = _uiState.value.danhSach,
+            danhSachBoThe = danhSachTatCaBoThe,
             boTheChinhSua = boTheChinhSua
         )
         if (loiKiemTra != null) {

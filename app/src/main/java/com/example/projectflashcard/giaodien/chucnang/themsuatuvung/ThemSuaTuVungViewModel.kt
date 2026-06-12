@@ -91,45 +91,13 @@ class ThemSuaTuVungViewModel(application: Application) : AndroidViewModel(applic
         val tu = state.tu.trim()
         val nghia = state.nghia.trim()
 
-        val loiNoiDung = KiemTraTuVung.kiemTraNoiDung(tu, nghia)
-        if (loiNoiDung != null) {
-            _uiState.update { it.copy(thongBaoLoi = loiNoiDung) }
-            return
-        }
+        if (!kiemTraNoiDungHopLe(tu, nghia)) return
 
         viewModelScope.launch {
             _uiState.update { it.copy(dangLuu = true, thongBaoLoi = null) }
             runCatching {
-                val tuVungGoc = state.tuVungGoc
-                val loiTrungTu = KiemTraTuVung.kiemTraTrungTu(
-                    tu = tu,
-                    danhSachTuVung = kho.layTuVungTheoBoThe(state.boTheId.toLong()).first(),
-                    tuVungGoc = tuVungGoc
-                )
-                if (loiTrungTu != null) {
-                    error(loiTrungTu)
-                }
-
-                if (tuVungGoc == null) {
-                    kho.themTuVung(
-                        TuVung(
-                            boTheId = state.boTheId.toLong(),
-                            tu = tu,
-                            nghia = nghia,
-                            phienAm = state.phienAm.trim(),
-                            viDu = state.viDu.trim()
-                        )
-                    )
-                } else {
-                    kho.suaTuVung(
-                        tuVungGoc.copy(
-                            tu = tu,
-                            nghia = nghia,
-                            phienAm = state.phienAm.trim(),
-                            viDu = state.viDu.trim()
-                        )
-                    )
-                }
+                kiemTraTrungTu(state, tu)
+                luuTuVung(state, tu, nghia)
             }.onSuccess {
                 _uiState.update { it.copy(dangLuu = false, daLuu = true) }
             }.onFailure { loi ->
@@ -141,5 +109,58 @@ class ThemSuaTuVungViewModel(application: Application) : AndroidViewModel(applic
                 }
             }
         }
+    }
+
+    private fun kiemTraNoiDungHopLe(tu: String, nghia: String): Boolean {
+        val loiNoiDung = KiemTraTuVung.kiemTraNoiDung(tu, nghia)
+        if (loiNoiDung != null) {
+            _uiState.update { it.copy(thongBaoLoi = loiNoiDung) }
+            return false
+        }
+        return true
+    }
+
+    private suspend fun kiemTraTrungTu(state: ThemSuaTuVungUiState, tu: String) {
+        val loiTrungTu = KiemTraTuVung.kiemTraTrungTu(
+            tu = tu,
+            danhSachTuVung = kho.layTuVungTheoBoThe(state.boTheId.toLong()).first(),
+            tuVungGoc = state.tuVungGoc
+        )
+        if (loiTrungTu != null) {
+            error(loiTrungTu)
+        }
+    }
+
+    private suspend fun luuTuVung(state: ThemSuaTuVungUiState, tu: String, nghia: String) {
+        val tuVungGoc = state.tuVungGoc
+        if (tuVungGoc == null) {
+            kho.themTuVung(taoTuVungMoi(state, tu, nghia))
+        } else {
+            kho.suaTuVung(capNhatTuVung(tuVungGoc, state, tu, nghia))
+        }
+    }
+
+    private fun taoTuVungMoi(state: ThemSuaTuVungUiState, tu: String, nghia: String): TuVung {
+        return TuVung(
+            boTheId = state.boTheId.toLong(),
+            tu = tu,
+            nghia = nghia,
+            phienAm = state.phienAm.trim(),
+            viDu = state.viDu.trim()
+        )
+    }
+
+    private fun capNhatTuVung(
+        tuVungGoc: TuVung,
+        state: ThemSuaTuVungUiState,
+        tu: String,
+        nghia: String
+    ): TuVung {
+        return tuVungGoc.copy(
+            tu = tu,
+            nghia = nghia,
+            phienAm = state.phienAm.trim(),
+            viDu = state.viDu.trim()
+        )
     }
 }

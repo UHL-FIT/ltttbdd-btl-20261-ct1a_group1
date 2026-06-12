@@ -51,29 +51,9 @@ class OnTapFlashcardViewModel(application: Application) : AndroidViewModel(appli
 
         congViecTai = viewModelScope.launch {
             runCatching {
-                val tenPhien: String
-                val danhSachTuVung: List<TuVung>
-
-                if (boTheId == null) {
-                    tenPhien = "On tap hom nay"
-                    danhSachTuVung = kho.layTatCaTuVung().first()
-                } else {
-                    val boThe = kho.layBoTheTheoId(boTheId.toLong()).first()
-                    tenPhien = boThe?.tenBoThe ?: "Bo the #$boTheId"
-                    danhSachTuVung = kho.layTuVungTheoBoThe(boTheId.toLong()).first()
-                }
-
-                tenPhien to danhSachTuVung.filter { it.canOnHomNay }
+                layDuLieuPhienOnTap(boTheId)
             }.onSuccess { (tenPhien, danhSachCanOn) ->
-                danhSachTuVungGoc = danhSachCanOn
-                _uiState.update {
-                    it.copy(
-                        tenPhienOnTap = tenPhien,
-                        dangTai = false,
-                        danhSachThe = danhSachCanOn.map { tuVung -> tuVung.thanhMucOnTap() },
-                        thongBaoLoi = null
-                    )
-                }
+                hienThiPhienOnTap(tenPhien, danhSachCanOn)
             }.onFailure { loi ->
                 _uiState.update {
                     it.copy(
@@ -82,6 +62,34 @@ class OnTapFlashcardViewModel(application: Application) : AndroidViewModel(appli
                     )
                 }
             }
+        }
+    }
+
+    private suspend fun layDuLieuPhienOnTap(boTheId: Int?): Pair<String, List<TuVung>> {
+        val tenPhien: String
+        val danhSachTuVung: List<TuVung>
+
+        if (boTheId == null) {
+            tenPhien = "On tap hom nay"
+            danhSachTuVung = kho.layTatCaTuVung().first()
+        } else {
+            val boThe = kho.layBoTheTheoId(boTheId.toLong()).first()
+            tenPhien = boThe?.tenBoThe ?: "Bo the #$boTheId"
+            danhSachTuVung = kho.layTuVungTheoBoThe(boTheId.toLong()).first()
+        }
+
+        return tenPhien to danhSachTuVung.filter { it.canOnHomNay }
+    }
+
+    private fun hienThiPhienOnTap(tenPhien: String, danhSachCanOn: List<TuVung>) {
+        danhSachTuVungGoc = danhSachCanOn
+        _uiState.update {
+            it.copy(
+                tenPhienOnTap = tenPhien,
+                dangTai = false,
+                danhSachThe = danhSachCanOn.map { tuVung -> tuVung.thanhMucOnTap() },
+                thongBaoLoi = null
+            )
         }
     }
 
@@ -98,30 +106,7 @@ class OnTapFlashcardViewModel(application: Application) : AndroidViewModel(appli
             _uiState.update { it.copy(dangXuLy = true, thongBaoLoi = null) }
 
             runCatching {
-                val thoiDiemOn = System.currentTimeMillis()
-                val soLanNhoTot = kho.layLichSuOnTapTheoTuVung(tuVung.id)
-                    .first()
-                    .count { it.mucDoOnTap == MucDoOnTap.NHO_DUOC || it.mucDoOnTap == MucDoOnTap.RAT_DE }
-                val ketQua = TinhLichLapLai.tinh(
-                    soLanNhoTotHienTai = soLanNhoTot,
-                    mucDoOnTap = mucDo,
-                    thoiDiemOn = thoiDiemOn
-                )
-
-                kho.suaTuVung(
-                    tuVung.copy(
-                        trangThai = ketQua.trangThaiMoi,
-                        canOnHomNay = mucDo == MucDoOnTap.DA_QUEN || mucDo == MucDoOnTap.KHO_NHO
-                    )
-                )
-                kho.themLichSuOnTap(
-                    LichSuOnTap(
-                        tuVungId = tuVung.id,
-                        boTheId = tuVung.boTheId,
-                        mucDoOnTap = mucDo,
-                        ngayOn = thoiDiemOn
-                    )
-                )
+                luuKetQuaOnTap(tuVung, mucDo)
             }.onSuccess {
                 chuyenSangTheTiepTheo(mucDo)
             }.onFailure { loi ->
@@ -133,6 +118,37 @@ class OnTapFlashcardViewModel(application: Application) : AndroidViewModel(appli
                 }
             }
         }
+    }
+
+    private suspend fun luuKetQuaOnTap(tuVung: TuVung, mucDo: MucDoOnTap) {
+        val thoiDiemOn = System.currentTimeMillis()
+        val soLanNhoTot = demSoLanNhoTot(tuVung)
+        val ketQua = TinhLichLapLai.tinh(
+            soLanNhoTotHienTai = soLanNhoTot,
+            mucDoOnTap = mucDo,
+            thoiDiemOn = thoiDiemOn
+        )
+
+        kho.suaTuVung(
+            tuVung.copy(
+                trangThai = ketQua.trangThaiMoi,
+                canOnHomNay = mucDo == MucDoOnTap.DA_QUEN || mucDo == MucDoOnTap.KHO_NHO
+            )
+        )
+        kho.themLichSuOnTap(
+            LichSuOnTap(
+                tuVungId = tuVung.id,
+                boTheId = tuVung.boTheId,
+                mucDoOnTap = mucDo,
+                ngayOn = thoiDiemOn
+            )
+        )
+    }
+
+    private suspend fun demSoLanNhoTot(tuVung: TuVung): Int {
+        return kho.layLichSuOnTapTheoTuVung(tuVung.id)
+            .first()
+            .count { it.mucDoOnTap == MucDoOnTap.NHO_DUOC || it.mucDoOnTap == MucDoOnTap.RAT_DE }
     }
 
     private fun chuyenSangTheTiepTheo(mucDo: MucDoOnTap) {

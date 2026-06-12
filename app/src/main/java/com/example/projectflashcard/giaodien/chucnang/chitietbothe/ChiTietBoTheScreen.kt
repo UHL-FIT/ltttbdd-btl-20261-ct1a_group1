@@ -25,9 +25,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projectflashcard.giaodien.chude.ChuDeLearnFlash
+import com.example.projectflashcard.giaodien.chude.KichThuocUi
 import com.example.projectflashcard.giaodien.thanhphan.HopThoaiXacNhan
 import com.example.projectflashcard.giaodien.thanhphan.ThanhTieuDe
 import com.example.projectflashcard.giaodien.thanhphan.TrangThaiRong
@@ -89,8 +89,8 @@ private fun ChiTietBoTheNoiDung(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            contentPadding = PaddingValues(KichThuocUi.khoangCachLon),
+            verticalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachVua)
         ) {
             item {
                 Text(
@@ -113,7 +113,7 @@ private fun ChiTietBoTheNoiDung(
 
             item {
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachNho)
                 ) {
                     items(BoLocTuVung.entries.toList()) { boLoc ->
                         val dangChon = uiState.boLocDangChon == boLoc
@@ -141,7 +141,7 @@ private fun ChiTietBoTheNoiDung(
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachVua)
                 ) {
                     Button(
                         onClick = onThemTuVung,
@@ -207,13 +207,13 @@ private fun MucTuVungTrongBoThe(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(KichThuocUi.boGocThe),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = KichThuocUi.doCaoThe)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(KichThuocUi.khoangCachLon),
+            verticalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachNho)
         ) {
             Text(
                 text = tuVung.tu,
@@ -236,7 +236,7 @@ private fun MucTuVungTrongBoThe(
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachVua)
             ) {
                 OutlinedButton(
                     onClick = onSua,

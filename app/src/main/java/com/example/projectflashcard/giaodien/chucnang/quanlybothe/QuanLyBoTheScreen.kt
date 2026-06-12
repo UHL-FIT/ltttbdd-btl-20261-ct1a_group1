@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.projectflashcard.giaodien.chude.KichThuocUi
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projectflashcard.giaodien.thanhphan.DangTai
 import com.example.projectflashcard.giaodien.thanhphan.HopThoaiXacNhan
@@ -104,7 +105,7 @@ fun QuanLyBoTheScreen(
 
                 else -> LazyColumn(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachNho),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(uiState.danhSach, key = { it.id }) { boThe ->

@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projectflashcard.giaodien.chude.Cam
 import com.example.projectflashcard.giaodien.chude.ChuDeLearnFlash
 import com.example.projectflashcard.giaodien.chude.DoNhe
+import com.example.projectflashcard.giaodien.chude.KichThuocUi
 import com.example.projectflashcard.giaodien.chude.XanhChuDao
 import com.example.projectflashcard.giaodien.chude.XanhLa
 import com.example.projectflashcard.giaodien.thanhphan.DangTai
@@ -86,8 +87,8 @@ private fun DanhSachThongKe(
 ) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(KichThuocUi.khoangCachLon),
+        verticalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachVua)
     ) {
         item {
             Text(

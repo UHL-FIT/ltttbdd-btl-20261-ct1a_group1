@@ -14,7 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.example.projectflashcard.giaodien.chude.KichThuocUi
 import com.example.projectflashcard.nghiepvu.kieudulieu.BoThe
 
 @Composable
@@ -36,7 +36,7 @@ fun HopThoaiBoThe(
             )
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachVua)) {
                 OutlinedTextField(
                     value = ten,
                     onValueChange = { ten = it },

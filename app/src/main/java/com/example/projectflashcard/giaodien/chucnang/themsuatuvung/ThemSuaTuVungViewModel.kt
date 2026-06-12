@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.projectflashcard.dulieu.cucbo.cosodulieu.CoSoDuLieuLearnFlash
 import com.example.projectflashcard.dulieu.khodulieu.KhoDuLieuFlashcard
+import com.example.projectflashcard.nghiepvu.kiemtra.KiemTraTuVung
 import com.example.projectflashcard.nghiepvu.kieudulieu.TuVung
 import com.example.projectflashcard.nghiepvu.khodulieu.KhoFlashcard
 import kotlinx.coroutines.Job
@@ -90,12 +91,9 @@ class ThemSuaTuVungViewModel(application: Application) : AndroidViewModel(applic
         val tu = state.tu.trim()
         val nghia = state.nghia.trim()
 
-        if (tu.isEmpty()) {
-            _uiState.update { it.copy(thongBaoLoi = "Từ vựng không được để trống") }
-            return
-        }
-        if (nghia.isEmpty()) {
-            _uiState.update { it.copy(thongBaoLoi = "Nghĩa tiếng Việt không được để trống") }
+        val loiNoiDung = KiemTraTuVung.kiemTraNoiDung(tu, nghia)
+        if (loiNoiDung != null) {
+            _uiState.update { it.copy(thongBaoLoi = loiNoiDung) }
             return
         }
 
@@ -103,14 +101,13 @@ class ThemSuaTuVungViewModel(application: Application) : AndroidViewModel(applic
             _uiState.update { it.copy(dangLuu = true, thongBaoLoi = null) }
             runCatching {
                 val tuVungGoc = state.tuVungGoc
-                val biTrung = kho.layTuVungTheoBoThe(state.boTheId.toLong())
-                    .first()
-                    .any { tuVung ->
-                        tuVung.tu.trim().equals(tu, ignoreCase = true) && tuVung.id != tuVungGoc?.id
-                    }
-
-                if (biTrung) {
-                    error("Từ này đã tồn tại trong bộ thẻ hiện tại")
+                val loiTrungTu = KiemTraTuVung.kiemTraTrungTu(
+                    tu = tu,
+                    danhSachTuVung = kho.layTuVungTheoBoThe(state.boTheId.toLong()).first(),
+                    tuVungGoc = tuVungGoc
+                )
+                if (loiTrungTu != null) {
+                    error(loiTrungTu)
                 }
 
                 if (tuVungGoc == null) {

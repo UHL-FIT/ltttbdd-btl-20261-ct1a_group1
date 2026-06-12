@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projectflashcard.giaodien.chude.ChuDeLearnFlash
+import com.example.projectflashcard.giaodien.chude.KichThuocUi
 import com.example.projectflashcard.giaodien.thanhphan.DangTai
 import com.example.projectflashcard.giaodien.thanhphan.ThanhTieuDe
 import com.example.projectflashcard.giaodien.thanhphan.TrangThaiRong
@@ -60,8 +61,8 @@ private fun TimKiemTuVungNoiDung(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            contentPadding = PaddingValues(KichThuocUi.khoangCachLon),
+            verticalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachVua)
         ) {
             item {
                 OutlinedTextField(
@@ -117,12 +118,12 @@ private fun MucKetQuaTimKiem(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(KichThuocUi.boGocThe),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = KichThuocUi.doCaoThe)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(KichThuocUi.khoangCachLon),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(

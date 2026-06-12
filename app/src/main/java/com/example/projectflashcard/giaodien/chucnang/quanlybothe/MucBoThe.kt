@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.projectflashcard.giaodien.chude.KichThuocUi
 import com.example.projectflashcard.nghiepvu.kieudulieu.BoThe
 
 @Composable
@@ -34,9 +35,9 @@ fun MucBoThe(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onNhanVao),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(KichThuocUi.boGocThe),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = KichThuocUi.doCaoThe)
     ) {
         Row(
             modifier = Modifier

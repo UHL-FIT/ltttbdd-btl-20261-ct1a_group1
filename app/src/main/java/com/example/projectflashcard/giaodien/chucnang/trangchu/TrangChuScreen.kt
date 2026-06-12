@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projectflashcard.giaodien.chude.Cam
 import com.example.projectflashcard.giaodien.chude.ChuDeLearnFlash
 import com.example.projectflashcard.giaodien.chude.DoNhe
+import com.example.projectflashcard.giaodien.chude.KichThuocUi
 import com.example.projectflashcard.giaodien.chude.XanhChuDao
 import com.example.projectflashcard.giaodien.chude.XanhLa
 import com.example.projectflashcard.giaodien.thanhphan.NutChucNang
@@ -80,7 +81,7 @@ private fun TrangChuNoiDung(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(KichThuocUi.khoangCachLon),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
@@ -107,12 +108,12 @@ private fun TrangChuNoiDung(
             }
 
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachVua)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachVua)) {
                         TheThongKeNho(thongKe = thongKe[0], modifier = Modifier.weight(1f))
                         TheThongKeNho(thongKe = thongKe[1], modifier = Modifier.weight(1f))
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachVua)) {
                         TheThongKeNho(thongKe = thongKe[2], modifier = Modifier.weight(1f))
                         TheThongKeNho(thongKe = thongKe[3], modifier = Modifier.weight(1f))
                     }
@@ -147,15 +148,15 @@ private fun TheThongKeNho(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 116.dp),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(KichThuocUi.boGocThe),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = KichThuocUi.doCaoThe)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(KichThuocUi.khoangCachNho)
         ) {
             Box(
                 modifier = Modifier

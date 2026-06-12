@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.projectflashcard.dulieu.cucbo.cosodulieu.CoSoDuLieuLearnFlash
 import com.example.projectflashcard.dulieu.khodulieu.KhoDuLieuFlashcard
+import com.example.projectflashcard.nghiepvu.kiemtra.KiemTraBoThe
 import com.example.projectflashcard.nghiepvu.kieudulieu.BoThe
 import com.example.projectflashcard.nghiepvu.khodulieu.KhoFlashcard
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,10 +23,6 @@ class QuanLyBoTheViewModel(application: Application) : AndroidViewModel(applicat
     val uiState: StateFlow<QuanLyBoTheUiState> = _uiState.asStateFlow()
 
     private val _tuKhoa = MutableStateFlow("")
-
-    companion object {
-        const val DO_DAI_TEN_TOI_DA = 50
-    }
 
     init {
         val db = CoSoDuLieuLearnFlash.layInstance(application)
@@ -73,22 +70,15 @@ class QuanLyBoTheViewModel(application: Application) : AndroidViewModel(applicat
 
     private fun luuBoThe(tenBoThe: String, moTa: String) {
         val tenTrimmed = tenBoThe.trim()
-
-        if (tenTrimmed.isEmpty()) {
-            _uiState.update { it.copy(thongBaoLoi = "Tên bộ thẻ không được để trống") }
-            return
-        }
-        if (tenTrimmed.length > DO_DAI_TEN_TOI_DA) {
-            _uiState.update { it.copy(thongBaoLoi = "Tên bộ thẻ không được quá $DO_DAI_TEN_TOI_DA ký tự") }
-            return
-        }
-
         val boTheChinhSua = _uiState.value.boTheChinhSua
-        val trungTen = _uiState.value.danhSach.any {
-            it.tenBoThe.trim().equals(tenTrimmed, ignoreCase = true) && it.id != boTheChinhSua?.id
-        }
-        if (trungTen) {
-            _uiState.update { it.copy(thongBaoLoi = "Đã tồn tại bộ thẻ với tên này") }
+
+        val loiKiemTra = KiemTraBoThe.kiemTraTenBoThe(
+            tenBoThe = tenTrimmed,
+            danhSachBoThe = _uiState.value.danhSach,
+            boTheChinhSua = boTheChinhSua
+        )
+        if (loiKiemTra != null) {
+            _uiState.update { it.copy(thongBaoLoi = loiKiemTra) }
             return
         }
 

@@ -66,7 +66,7 @@ private fun TrangChuNoiDung(
         ThongKeTrangChu("Cần ôn hôm nay", uiState.soTuCanOnHomNay.toString(), "Số từ cần ôn trong ngày", DoNhe)
     )
     val chucNang = listOf(
-        Triple("Quản lý bộ thẻ", "Xem, tạo và mở chi tiết từng bộ thẻ", TrangChuEvent.MoQuanLyBoThe),
+        Triple("Quản lý bộ thẻ chinh", "Xem, tạo và mở chi tiết từng bộ thẻ", TrangChuEvent.MoQuanLyBoThe),
         Triple("Ôn tập hôm nay", "Ôn các từ cần học trong hôm nay", TrangChuEvent.MoOnTapHomNay),
         Triple("Thống kê học tập", "Theo dõi tiến độ và kết quả học tập", TrangChuEvent.MoThongKeHocTap),
         Triple("Tìm kiếm từ vựng", "Tìm trong danh sách từ vựng đã lưu", TrangChuEvent.MoTimKiemTuVung),

@@ -46,7 +46,6 @@ class ChiTietBoTheViewModel(application: Application) : AndroidViewModel(applica
             ChiTietBoTheEvent.HuyXoaTuVung -> dongXacNhanXoa()
         }
     }
-
     fun taiBoThe(boTheId: Int) {
         congViecTaiBoThe?.cancel()
         _uiState.update { it.copy(boTheId = boTheId, dangTai = true) }
@@ -72,25 +71,26 @@ class ChiTietBoTheViewModel(application: Application) : AndroidViewModel(applica
             }
         }
     }
-
+//từ khóa sẽ là nơi chứa  dữ liệu người dùng nhập tukhoatimkiem sẽ được lưu vào trong uistate  và cập nhật hiển thị lên screen
     private fun thayDoiTuKhoaTimKiem(tuKhoa: String) {
         _uiState.update { it.copy(tuKhoaTimKiem = tuKhoa) }
         capNhatDanhSachHienThi()
     }
-
+//khi người dùng chọn boloc được lưu trong uistate sẽ được lọc và capnhat trong danhsach hienthi
     private fun chonBoLoc(boLoc: BoLocTuVung) {
         _uiState.update { it.copy(boLocDangChon = boLoc) }
         capNhatDanhSachHienThi()
     }
-
+//tuvung là nơi sẽ lưu uistate của những từ đang xóa tuvungdangxoa sẽ cập nhật lại uistate hiển th lên trên màn hình
     private fun moXacNhanXoa(tuVung: MucTuVung) {
         _uiState.update { it.copy(tuVungDangXoa = tuVung) }
     }
-
+//tuvung nếu ko xác nhân xóa trả lại rỗng cho uistate rồi cập nhật lại danh sách hiển thị
     private fun dongXacNhanXoa() {
         _uiState.update { it.copy(tuVungDangXoa = null) }
     }
-
+//tucanxoa capnhat trong dữ liệu nội bộ nếu đang rỗng thì sẽ không xóa và cập nhật lại danh sách hiển thị
+    // còn nếu khác rỗng thì sẽ xóa và cập nhật lại danh sách hiển thị
     private fun xacNhanXoaTuVung() {
         val tuCanXoa = _uiState.value.tuVungDangXoa ?: return
         viewModelScope.launch {
@@ -98,13 +98,13 @@ class ChiTietBoTheViewModel(application: Application) : AndroidViewModel(applica
             _uiState.update { it.copy(tuVungDangXoa = null) }
         }
     }
-
+//locdanhsach là lưu trạng thái của state của người nhâpj và cập nhật lại danh sách khi hiển thị
     private fun capNhatDanhSachHienThi() {
         _uiState.update { state ->
             state.copy(danhSachHienThi = locDanhSach(state))
         }
     }
-
+//tukhoa sẽ được lưu uistate
     private fun locDanhSach(state: ChiTietBoTheUiState): List<MucTuVung> {
         val tuKhoa = state.tuKhoaTimKiem.trim()
 
@@ -124,7 +124,7 @@ class ChiTietBoTheViewModel(application: Application) : AndroidViewModel(applica
                 }
             }
     }
-
+//chỉ đơn giản là biến danh sách từ vựng hoặc database thành danh sách hiển thị
     private fun TuVung.thanhMucTuVung(): MucTuVung = MucTuVung(
         id = id,
         boTheId = boTheId,

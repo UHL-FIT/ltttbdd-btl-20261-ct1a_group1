@@ -59,7 +59,7 @@ fun QuanLyBoTheScreen(
     Scaffold(
         topBar = {
             ThanhTieuDe(
-                tieuDe = "Quản lý bộ thẻ",
+                tieuDe = "Quản lý bộ thẻ chinh",
                 coNutQuayLai = true,
                 onQuayLai = { onEvent(QuanLyBoTheEvent.QuayLai) }
             )

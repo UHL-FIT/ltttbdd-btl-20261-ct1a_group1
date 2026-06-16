@@ -1,5 +1,4 @@
 package com.example.projectflashcard.giaodien.chucnang.chitietbothe
-
 enum class BoLocTuVung(val tieuDe: String) {
     TAT_CA("Tất cả"),
     CHUA_THUOC("Chưa thuộc"),

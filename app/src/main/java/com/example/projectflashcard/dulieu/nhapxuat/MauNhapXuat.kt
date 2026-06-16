@@ -10,7 +10,6 @@ import org.json.JSONObject
 
 object MauNhapXuat {
     private const val PHIEN_BAN_HIEN_TAI = 1
-
     private const val KHOA_PHIEN_BAN = "phienBan"
     private const val KHOA_NGAY_XUAT = "ngayXuat"
     private const val KHOA_BO_THE = "boThe"
